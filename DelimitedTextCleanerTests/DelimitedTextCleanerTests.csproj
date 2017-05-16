@@ -55,8 +55,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DelimitedFileCleaner\DelimitedTextCleaner.csproj">
-      <Project>{BA38C704-9FA6-43ED-90E9-B96782C6FE93}</Project>
+    <ProjectReference Include="..\DelimitedTextCleaner\DelimitedTextCleaner.csproj">
+      <Project>{ba38c704-9fa6-43ed-90e9-b96782c6fe93}</Project>
       <Name>DelimitedTextCleaner</Name>
     </ProjectReference>
   </ItemGroup>

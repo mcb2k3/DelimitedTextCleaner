@@ -2,25 +2,12 @@
  * DelimitedTextCleaner: C# class for parsing and scrubbing a line of CSV or other 
  * similar delimited text
  * 
- * 
- * There is more than one way that improperly balanced quotes can be interpreted 
- * and corrected. This code, as released, will replace invalid double quote 
- * characters with valid ones. In effect, an incoming string of double quote 
- * characters of odd length where it does not belong will be expanded by one 
- * double quote character. In fields containing invalid double quotes, it will
- * also force recognition of field delimiters, irrespective of quoting.
- * 
- * Employs a simple state machine design that can be customized as desired. Each 
- * incoming character is evaluated in the context of the current state, and may 
- * trigger a switch to a different state, with side effects.
- * .
  * Author: Megan Brooks
  * Company: Sql2Go (Sql2go.com), Sacramento, California, USA, May, 2017
  * Inspired by https://github.com/JaGTM/CSVFixer
  * ...but is a complete rewrite
  * Based loosely on RFC 4180 (https://tools.ietf.org/html/rfc4180)
  * License: Released as free software under the MIT License (below)
-
  ******************************************************************************************
  Copyright 2017 Megan Brooks
 
@@ -39,7 +26,7 @@
  FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
- ******************************************************************************************
+******************************************************************************************
  */
 
 using System;
@@ -77,10 +64,20 @@ namespace Sql2Go.DelimitedTextCleaner
             }
         }
 
-        /// <summary>
-        /// If set, invalid double quotes will not cause an error return
-        /// from CleanText
-        /// </summary>
+        /*
+         * There is more than one way that invalid quotes can be interpreted 
+         * and corrected. This code, as released, will replace invalid double quote 
+         * characters with valid ones. In effect, an incoming string of double quote 
+         * characters of odd length where it does not belong will be expanded by one 
+         * double quote character. In fields containing invalid double quotes, it will
+         * also force recognition of field delimiters irrespective of quoting.
+         * 
+         * Employs a simple state machine design that can be customized as desired. Each 
+         * incoming character is evaluated in the context of the current state, and may 
+         * trigger a switch to a different state, with side effects.
+         * .
+         */
+
         private readonly char fieldDelimiter = ',';     //Parameter (default value)
         private readonly char textDelimiter = '"';      //Might become a parameter some day
         private readonly char[] validCtl = new char[] { '\r', '\n', '\t' };
@@ -117,7 +114,7 @@ namespace Sql2Go.DelimitedTextCleaner
         }
 
         /// <summary>
-        /// Specify delimiter character
+        /// Specify delimiter character and whether column names are present
         /// </summary>
         /// <param name="Delimiter">Field delimiter character</param>
         /// <param name="HasHeaderRow">True if first row presented contains column names</param>
@@ -276,19 +273,12 @@ namespace Sql2Go.DelimitedTextCleaner
             return !anyDamagedQuoteFound;
         }
 
-        /// <summary>
-        /// Save field character
-        /// </summary>
-        private void SaveChar()
+        private void SaveChar()                         // Save field character
         {
             SaveChar(thisChar);
         }
 
-        /// <summary>
-        /// Save specified character and flag for escaping if needed
-        /// </summary>
-        /// <param name="chr"></param>
-        private void SaveChar(char chr)
+        private void SaveChar(char chr) // Save specified character and flag for escaping if needed
         {
             if (chr == textDelimiter || chr == fieldDelimiter || thisChar < ' ')
                 thisFieldInfo.requiresQuotes = true;
@@ -296,20 +286,13 @@ namespace Sql2Go.DelimitedTextCleaner
             fieldChars.Append(chr);
         }
 
-        /// <summary>
-        /// Save field character and change state
-        /// </summary>
-        private void SaveChar(ParserState newState)
+        private void SaveChar(ParserState newState) // Save field character and change state
         {
             parserState = newState;
             SaveChar();
         }
 
-        /// <summary>
-        /// Save accumulated quote characters
-        /// </summary>
-        /// <returns></returns>
-        private bool FlushQuotes()
+        private bool FlushQuotes()  // Save accumulated quote characters
         {
             bool oddCount;
 
@@ -332,10 +315,7 @@ namespace Sql2Go.DelimitedTextCleaner
             return oddCount;
         }
 
-        /// <summary>
-        /// Process end of field
-        /// </summary>
-        private void EndOfField()
+        private void EndOfField()   // Process end of field
         {
             if (thisFieldInfo != null)                      //Add field to list if started
             {
@@ -413,7 +393,8 @@ namespace Sql2Go.DelimitedTextCleaner
         }
 
         /// <summary>
-        /// Return line as delimited string, escaped as required and optionally with enclosing quotes
+        /// Return line as delimited string, escaped as required and 
+        /// optionally with enclosing quotes
         /// </summary>
         /// <returns>Escaped string</returns>
         public string ReturnText(bool alwaysEnclose)

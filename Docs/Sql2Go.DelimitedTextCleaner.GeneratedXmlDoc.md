@@ -7,13 +7,6 @@
 
 
 ---
-#### Field Cleaner.fieldDelimiter
-
- If set, invalid double quotes will not cause an error return from CleanText 
-
-
-
----
 #### Method Cleaner.#ctor
 
  Default constructor -- assume comma delimiter, has header row 
@@ -23,7 +16,7 @@
 ---
 #### Method Cleaner.#ctor(System.Char,System.Boolean)
 
- Specify delimiter character 
+ Specify delimiter character and whether column names are present 
 
 |Name | Description |
 |-----|------|
@@ -39,46 +32,6 @@
 |Name | Description |
 |-----|------|
 |currentLine: |Delimited text to lean|
-
-
----
-#### Method Cleaner.SaveChar
-
- Save field character 
-
-
-
----
-#### Method Cleaner.SaveChar(System.Char)
-
- Save specified character and flag for escaping if needed 
-
-|Name | Description |
-|-----|------|
-|chr: ||
-
-
----
-#### Method Cleaner.SaveChar(Sql2Go.DelimitedTextCleaner.Cleaner.ParserState)
-
- Save field character and change state 
-
-
-
----
-#### Method Cleaner.FlushQuotes
-
- Save accumulated quote characters 
-
-**Returns**: 
-
-
-
----
-#### Method Cleaner.EndOfField
-
- Process end of field 
-
 
 
 ---

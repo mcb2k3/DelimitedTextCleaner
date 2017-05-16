@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedTextCleaner", "DelimitedFileCleaner\DelimitedTextCleaner.csproj", "{BA38C704-9FA6-43ED-90E9-B96782C6FE93}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedTextCleanerTests", "DelimitedTextCleanerTests\DelimitedTextCleanerTests.csproj", "{C9691019-7176-4B5E-BD62-050DCF4742FF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{5F539E40-4AC8-46DD-A289-3251F1D01A32}"
@@ -17,20 +15,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedTextCleaner", "DelimitedTextCleaner\DelimitedTextCleaner.csproj", "{BA38C704-9FA6-43ED-90E9-B96782C6FE93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C9691019-7176-4B5E-BD62-050DCF4742FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9691019-7176-4B5E-BD62-050DCF4742FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9691019-7176-4B5E-BD62-050DCF4742FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9691019-7176-4B5E-BD62-050DCF4742FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA38C704-9FA6-43ED-90E9-B96782C6FE93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
