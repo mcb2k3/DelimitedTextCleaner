@@ -128,7 +128,7 @@ namespace Sql2Go.DelimitedTextCleaner
         /// <summary>
         /// Clean up delimited text
         /// </summary>
-        /// <param name="currentLine">Delimited text to lean</param>
+        /// <param name="currentLine">Delimited text to clean</param>
         public bool CleanText(string currentLine)
         {
             charIndex = -1;                                 //Current index in line
