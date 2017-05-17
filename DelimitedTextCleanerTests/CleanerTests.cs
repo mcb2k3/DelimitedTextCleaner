@@ -1,10 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sql2Go.DelimitedTextCleaner;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sql2Go.DelimitedTextCleaner.Tests
 {
@@ -29,6 +24,11 @@ namespace Sql2Go.DelimitedTextCleaner.Tests
 
         const string commaTextLine2StrayTextQuote = "1\"23,abc,\",\",\"\"\"\"";
         const string commaTextLine2StrayTextQuoteReturned = "\"1\"\"23\",abc,\",\",\"\"\"\"";
+
+        readonly string[] textLine1Array =
+            new string[] { "First", "Second", "Third", "Fourth" };
+        readonly string[] textLine2Array =
+            new string[] { "123", "abc", ",", "\"" };
 
         /// <summary>
         /// Invoke constructor and confirm empty results
@@ -215,22 +215,23 @@ namespace Sql2Go.DelimitedTextCleaner.Tests
             Assert.AreEqual<string>(commaTextLine2StrayTextQuoteReturned, resultText2);
         }
 
-        //[TestMethod()]
-        //public void ReturnLineTest()
-        //{
-        //    Assert.Fail();
-        //}
+        [TestMethod()]
+        public void ReturnHeadersAndFieldsTest()
+        {
+            Cleaner cleaner = new Cleaner();
+            Assert.IsNotNull(cleaner);
 
-        //[TestMethod()]
-        //public void ReturnHeadersTest()
-        //{
-        //    Assert.Fail();
-        //}
+            var result1 = cleaner.CleanText(commaTextLine1);        //Header
+            Assert.IsTrue(result1);
 
-        //[TestMethod()]
-        //public void ReturnFieldsTest()
-        //{
-        //    Assert.Fail();
-        //}
+            var resultText1 = cleaner.ReturnHeaders();
+            CollectionAssert.AreEqual(textLine1Array, resultText1);
+
+            var result2 = cleaner.CleanText(commaTextLine2);        //Data
+            Assert.IsTrue(result2);
+
+            var resultText2 = cleaner.ReturnFields();             //More data, enclose
+            CollectionAssert.AreEqual(textLine2Array, resultText2);
+        }
     }
 }

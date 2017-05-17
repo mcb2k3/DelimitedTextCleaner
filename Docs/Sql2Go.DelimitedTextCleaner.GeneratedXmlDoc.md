@@ -31,7 +31,7 @@
 
 |Name | Description |
 |-----|------|
-|currentLine: |Delimited text to lean|
+|currentLine: |Delimited text to clean|
 
 
 ---
