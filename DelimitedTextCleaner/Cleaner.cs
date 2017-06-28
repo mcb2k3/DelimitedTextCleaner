@@ -97,6 +97,10 @@ namespace Sql2Go.DelimitedTextCleaner
         private bool damagedQuoteFound;                 //True if field contains damaged quote(s)
         private bool anyDamagedQuoteFound;              //True if damage in any field
 
+        private string[] headers;                       //Array of headers, if defined
+        private Dictionary<string, int> headerIndexes;  //Dictionary of header index values
+        private string[] fields;                        //Array of field values;
+
         private enum ParserState
         {
             AtDelimiter = 0,                            //Hit delimiter, or at start
@@ -264,16 +268,20 @@ namespace Sql2Go.DelimitedTextCleaner
 
             if (!firstLineWasParsed)                        //First line only
             {
+                headerIndexes = null;                       //Clearn index cache
+                headers = null;                             //Clear header cache
+
                 if (hasHeaderRow)                           //Save header list
                     headerList = fieldList;
 
                 firstLineWasParsed = true;
             }
 
+            fields = null;                                  //Clear field values cache
             return !anyDamagedQuoteFound;
         }
 
-        private void SaveChar()                         // Save field character
+        private void SaveChar()                             // Save field character
         {
             SaveChar(thisChar);
         }
@@ -315,7 +323,7 @@ namespace Sql2Go.DelimitedTextCleaner
             return oddCount;
         }
 
-        private void EndOfField()   // Process end of field
+        private void EndOfField()                           // Process end of field
         {
             if (thisFieldInfo != null)                      //Add field to list if started
             {
@@ -423,16 +431,23 @@ namespace Sql2Go.DelimitedTextCleaner
         /// <returns>String array of field values</returns>
         public string[] ReturnHeaders()
         {
-            if (headerList != null)
+            if (headers != null)
             {
-                return (
+                return headers;
+            }
+            else if (headerList != null)
+            {
+                headers = (
                     from item in headerList
                     select item.fieldChars
                 ).ToArray();
+
+                return headers;
             }
             else
             {
-                return new string[] { };
+                headers = new string[] { };
+                return headers;
             }
         }
 
@@ -442,16 +457,51 @@ namespace Sql2Go.DelimitedTextCleaner
         /// <returns>String array of field names</returns>
         public string[] ReturnFields()
         {
-            if (fieldList != null)
+            if (fields != null)
+            {
+                return fields;
+            }
+            else if (fieldList != null)
             { 
-                return (
+                fields = (
                     from item in fieldList
                     select item.fieldChars
                 ).ToArray();
+
+                return fields;
             }
             else
             {
-                return new string[] { };
+                fields = new string[] { };
+                return fields;
+            }
+        }
+
+        /// <summary>
+        /// Return current value of named field
+        /// </summary>
+        /// <param name="fieldName">Name of field to return value</param>
+        /// <returns>Field value if field name exists, else null</returns>
+        public string this[string fieldName]
+        {
+            get
+            {
+                if (headerIndexes == null)                  //If dict not yet built
+                {
+                    headerIndexes = new Dictionary<string, int>();
+                    var h = ReturnHeaders();                //Get header array ptr
+
+                    for (int i = 0; i < h.Length; i++)
+                    {
+                        if (!headerIndexes.ContainsKey(h[i]))   //1st instance only
+                            headerIndexes.Add(h[i], i);     //Add header index to dict
+                    }
+                }
+
+                if (headerIndexes.TryGetValue(fieldName, out int fi))   //Look up index
+                    return ReturnFields()[fi];              //Return value if found
+                else
+                    return null;
             }
         }
     }

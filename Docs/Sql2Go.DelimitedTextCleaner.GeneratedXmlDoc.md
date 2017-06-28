@@ -80,5 +80,17 @@
 
 
 ---
+#### Property Cleaner.Item(System.String)
+
+ Return current value of named field 
+
+|Name | Description |
+|-----|------|
+|fieldName: |Name of field to return value|
+**Returns**: Field value if field name exists, else null
+
+
+
+---
 
 

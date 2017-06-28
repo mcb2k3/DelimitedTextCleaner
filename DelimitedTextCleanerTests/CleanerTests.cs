@@ -233,5 +233,30 @@ namespace Sql2Go.DelimitedTextCleaner.Tests
             var resultText2 = cleaner.ReturnFields();             //More data, enclose
             CollectionAssert.AreEqual(textLine2Array, resultText2);
         }
+
+        [TestMethod()]
+        public void IndexerTest()
+        {
+            Cleaner cleaner = new Cleaner();
+            Assert.IsNotNull(cleaner);
+
+            var result1 = cleaner.CleanText(commaTextLine1);        //Header
+            Assert.IsTrue(result1);
+
+            var second = cleaner["Second"];
+            Assert.AreEqual(second, "Second");
+
+            var fourth = cleaner["Fourth"];
+            Assert.AreEqual(fourth, "Fourth");
+
+            var zeroeth = cleaner["Zeroeth"];
+            Assert.IsNull(zeroeth);
+
+            var third = cleaner["Third"];
+            Assert.AreEqual(third, "Third");
+
+            var first = cleaner["First"];
+            Assert.AreEqual(first, "First");
+        }
     }
 }

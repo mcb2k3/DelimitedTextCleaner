@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{76109683-1EF4-4249-96DC-731C38A69B31}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DelimitedTextCleaner", "DelimitedTextCleaner\DelimitedTextCleaner.csproj", "{BA38C704-9FA6-43ED-90E9-B96782C6FE93}"
