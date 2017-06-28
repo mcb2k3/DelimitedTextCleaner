@@ -498,7 +498,9 @@ namespace Sql2Go.DelimitedTextCleaner
                     }
                 }
 
-                if (headerIndexes.TryGetValue(fieldName, out int fi))   //Look up index
+                int fi;
+
+                if (headerIndexes.TryGetValue(fieldName, out fi))   //Look up index
                     return ReturnFields()[fi];              //Return value if found
                 else
                     return null;
