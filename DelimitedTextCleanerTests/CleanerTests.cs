@@ -25,10 +25,18 @@ namespace Sql2Go.DelimitedTextCleaner.Tests
         const string commaTextLine2StrayTextQuote = "1\"23,abc,\",\",\"\"\"\"";
         const string commaTextLine2StrayTextQuoteReturned = "\"1\"\"23\",abc,\",\",\"\"\"\"";
 
+        const string commaTextLine3 = "1st,2nd,3rd,";
+
+        const string commaTextLine4 = "1st,2nd,3rd,\"4thpt1\r\n4thpt2\"\r\n";
+
         readonly string[] textLine1Array =
             new string[] { "First", "Second", "Third", "Fourth" };
         readonly string[] textLine2Array =
             new string[] { "123", "abc", ",", "\"" };
+        readonly string[] textLine3Array =
+            new string[] { "1st", "2nd", "3rd", "" };
+        readonly string[] textLine4Array =
+            new string[] { "1st", "2nd", "3rd", "4thpt1\r\n4thpt2" };
 
         /// <summary>
         /// Invoke constructor and confirm empty results
@@ -227,11 +235,23 @@ namespace Sql2Go.DelimitedTextCleaner.Tests
             var resultText1 = cleaner.ReturnHeaders();
             CollectionAssert.AreEqual(textLine1Array, resultText1);
 
-            var result2 = cleaner.CleanText(commaTextLine2);        //Data
+            var result2 = cleaner.CleanText(commaTextLine2);        //Simple data
             Assert.IsTrue(result2);
 
-            var resultText2 = cleaner.ReturnFields();             //More data, enclose
+            var resultText2 = cleaner.ReturnFields();               
             CollectionAssert.AreEqual(textLine2Array, resultText2);
+
+            var result3 = cleaner.CleanText(commaTextLine3);        //Trailing field delim
+            Assert.IsTrue(result3);
+
+            var resultText3 = cleaner.ReturnFields();               
+            CollectionAssert.AreEqual(textLine3Array, resultText3);
+
+            var result4 = cleaner.CleanText(commaTextLine4);        //Quoted EOL
+            Assert.IsTrue(result4);
+
+            var resultText4 = cleaner.ReturnFields();               
+            CollectionAssert.AreEqual(textLine4Array, resultText4);
         }
 
         [TestMethod()]

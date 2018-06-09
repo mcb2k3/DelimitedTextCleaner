@@ -78,18 +78,22 @@ namespace Sql2Go.DelimitedTextCleaner
          * .
          */
 
-        private readonly char fieldDelimiter = ',';     //Parameter (default value)
-        private readonly char textDelimiter = '"';      //Might become a parameter some day
-        private readonly char[] validCtl = new char[] { '\r', '\n', '\t' };
-        private readonly bool hasHeaderRow = true;      //True if data has header row
+        private readonly char fieldDelimiter = ',';     //Parameter, comma by default
+        private readonly bool hasHeaderRow = true;      //Parameter, true if data has header row
+        private readonly char textDelimiter = '"';      //Might become a parameter someday
+
+        private readonly char CR = '\r';                //EOL -- constant
+        private readonly char LF = '\n';                //Newline -- constant
+        private readonly char[] validCtl = new char[] { '\r', '\n', '\t' }; //Ctl chars we will quote
 
         private bool firstLineWasParsed = false;        //True once first line parsed
         private int fieldCount = 0;                     //Number of header fields found
 
         private ParserState parserState;                //Current parser state
+        private bool EndOfLineReached;                  //True after logical EOL found
         private int charIndex;                          //Current position in line buffer
         private int quotesInARow;                       //Multiple quote counter
-        private char thisChar;                          //Current character
+        private char thisChar = '\0';                   //Current character
         private FieldInfo thisFieldInfo;                //Current field
         private List<FieldInfo> headerList;             //List of all header field names
         private List<FieldInfo> fieldList;              //List of all fields in line
@@ -107,7 +111,8 @@ namespace Sql2Go.DelimitedTextCleaner
             InText,                                     //In text without quotes
             QuoteInText,                                //Hit double quote in text
             InQuotedText,                               //Somewhere in quoted text
-            QuoteInQuotedText                           //Finished quoted text (maybe)
+            QuoteInQuotedText,                          //Finished quoted text (maybe)
+            AtEOL                                       //Reach end of line
         }
 
         /// <summary>
@@ -135,7 +140,18 @@ namespace Sql2Go.DelimitedTextCleaner
         /// <param name="currentLine">Delimited text to clean</param>
         public bool CleanText(string currentLine)
         {
-            charIndex = -1;                                 //Current index in line
+            int currentChar = 0;
+            return CleanText(currentLine, ref currentChar);
+        }
+
+        /// <summary>
+        /// Clean up multi-line delimited text
+        /// </summary>
+        /// <param name="currentLine">Delimited text to clean</param>
+        /// <param name="currentChar">Index of next character, set to -1 when buffer end reached</param>
+        public bool CleanText(string currentLine, ref int currentChar)
+        {
+            charIndex = currentChar - 1;                    //Current index in line
             parserState = ParserState.AtDelimiter;          //Current parser state
             fieldList = new List<FieldInfo>();   //List of clean field values
             fieldChars = new StringBuilder(currentLine.Length); //Field being cleaned
@@ -146,10 +162,23 @@ namespace Sql2Go.DelimitedTextCleaner
 
             while (++charIndex < currentLine.Length)        //Next character
             {
-                if (thisFieldInfo == null)                  //Check start of new field
-                    thisFieldInfo = new FieldInfo(null, false);
+                if (parserState == ParserState.AtEOL)       //Finish up if EOL
+                {
+                    var newChar = currentLine[charIndex];   //Current character
+
+                    if (thisChar == CR && newChar == LF)
+                        charIndex++;                        //Flush past LF
+
+                    break;                                  //Drop out to EOL processing
+                }
 
                 thisChar = currentLine[charIndex];          //Current character
+
+                if (thisChar < ' ' && !validCtl.Contains(thisChar))
+                    continue;                               //Flush weird chars
+
+                if (thisFieldInfo == null)                  //Check start of new field
+                    thisFieldInfo = new FieldInfo(null, false);
 
                 if (thisChar == textDelimiter)              //Encountered double quote
                 {
@@ -180,7 +209,7 @@ namespace Sql2Go.DelimitedTextCleaner
                 }
                 else if (thisChar == fieldDelimiter)        //Hit field delimiter
                 {
-                    switch (parserState)
+                    switch (parserState)                    //Treat as text if quoted
                     {
                         case ParserState.AtDelimiter:       //Early field delimiter
                         case ParserState.InText:            //End of text-only field
@@ -201,13 +230,44 @@ namespace Sql2Go.DelimitedTextCleaner
                                 EndOfField();               //Safe mode -- bad quotes
                             break;
                         case ParserState.QuoteInText:       //Delimiter after quote in text
-                            if(FlushQuotes())               //Flush quotes at end of field
+                            if (FlushQuotes())               //Flush quotes at end of field
                                 SaveChar(textDelimiter);    //Add extra if dangler
 
                             EndOfField();
                             break;
                         default:
                             Debug.Assert(false);
+                            break;
+                    }
+                }
+                else if (thisChar == CR || thisChar == LF)      //Logical EOL
+                {
+                    switch (parserState)
+                    {
+                        case ParserState.QuoteInText:
+                            if (FlushQuotes())                  //Flush quotes at end of field
+                                SaveChar(textDelimiter);        //Add extra if dangler
+
+                            EndOfField();
+                            parserState = ParserState.AtEOL;    //Trigger exit
+                            break;
+                        case ParserState.InQuotedText:
+                            if (!damagedQuoteFound)
+                                SaveChar();                     //Normally is escaped
+                            else
+                            {
+                                EndOfField();                   //Safe mode -- bad quotes
+                                parserState = ParserState.AtEOL;    //Trigger exit
+                            }
+                            break;
+                        case ParserState.QuoteInQuotedText:
+                            FlushQuotes();                      //Quoted field close
+                            EndOfField();
+                            parserState = ParserState.AtEOL;    //Trigger exit
+                            break;
+                        default:
+                            EndOfField();                       //It's done, whatever it was
+                            parserState = ParserState.AtEOL;    //Trigger exit
                             break;
                     }
 
@@ -247,6 +307,9 @@ namespace Sql2Go.DelimitedTextCleaner
 
             switch (parserState)                    //Finish final field
             {
+                case ParserState.AtDelimiter:       //Trailing delimiter
+                    thisFieldInfo = new FieldInfo(null, false); //Create empty field
+                    break;
                 case ParserState.InQuotedText:      //EOL inside quotes
                     MarkQuoteError();               //Closing quote missing
                     break;
@@ -278,6 +341,12 @@ namespace Sql2Go.DelimitedTextCleaner
             }
 
             fields = null;                                  //Clear field values cache
+
+            if (charIndex < currentLine.Length)             //Buffer is not exhausted
+                currentChar = charIndex;                    //Return resume point
+            else
+                currentChar = -1;                           //Buffer is exhausted
+
             return !anyDamagedQuoteFound;
         }
 
@@ -288,8 +357,12 @@ namespace Sql2Go.DelimitedTextCleaner
 
         private void SaveChar(char chr) // Save specified character and flag for escaping if needed
         {
-            if (chr == textDelimiter || chr == fieldDelimiter || thisChar < ' ')
+            if (chr == textDelimiter
+                || chr == fieldDelimiter 
+                || thisChar < ' ')
+            {
                 thisFieldInfo.requiresQuotes = true;
+            }
 
             fieldChars.Append(chr);
         }
@@ -329,13 +402,16 @@ namespace Sql2Go.DelimitedTextCleaner
             {
                 if (!firstLineWasParsed)                    //First line only
                     fieldCount++;                           //Count fields
+
                 thisFieldInfo.fieldChars = fieldChars.ToString();   //Save characters
                 fieldChars.Clear();                         //Reset stringbuilder for next field
                 fieldList.Add(thisFieldInfo);               //Save field
                 thisFieldInfo = null;                       //Reset field for next
             }
 
-            parserState = ParserState.AtDelimiter;          //Back to initial state
+            if (parserState != ParserState.AtEOL)           //No final delim if at EOL
+                parserState = ParserState.AtDelimiter;      //Back to initial state
+
             quotesInARow = 0;                               //Make sure quote count is reset
             damagedQuoteFound = false;                      //And damage indicator
         }

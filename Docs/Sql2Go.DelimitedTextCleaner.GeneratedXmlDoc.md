@@ -35,6 +35,17 @@
 
 
 ---
+#### Method Cleaner.CleanText(System.String,System.Int32@)
+
+ Clean up multi-line delimited text 
+
+|Name | Description |
+|-----|------|
+|currentLine: |Delimited text to clean|
+|currentChar: |Index of next character, set to -1 when buffer end reached|
+
+
+---
 #### Method Cleaner.ReconcileFieldCount
 
  Add or consolidate fields to match expected count 
