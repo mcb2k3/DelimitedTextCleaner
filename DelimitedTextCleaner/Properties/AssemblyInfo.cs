@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sql2Go, Sacramento, California, USA")]
 [assembly: AssemblyProduct("DelimitedTextCleaner")]
-[assembly: AssemblyCopyright("Copyright ©  2017 Megan Brooks")]
-[assembly: AssemblyTrademark("Sql2Go is a trade mark of Megan Brooks")]
+[assembly: AssemblyCopyright("Copyright ©  2017 Megan Brooks DBA Sql2Go")]
+[assembly: AssemblyTrademark("Sql2Go is a service mark of Megan Brooks")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.*")]
+[assembly: AssemblyFileVersion("1.1.0.0")]

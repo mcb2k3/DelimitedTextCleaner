@@ -90,7 +90,6 @@ namespace Sql2Go.DelimitedTextCleaner
         private int fieldCount = 0;                     //Number of header fields found
 
         private ParserState parserState;                //Current parser state
-        private bool EndOfLineReached;                  //True after logical EOL found
         private int charIndex;                          //Current position in line buffer
         private int quotesInARow;                       //Multiple quote counter
         private char thisChar = '\0';                   //Current character
