@@ -41,8 +41,8 @@
 
 |Name | Description |
 |-----|------|
-|currentLine: |Delimited text to clean|
-|currentChar: |Index of next character, set to -1 when buffer end reached|
+|allLines: |Multiline delimited text to clean|
+|currentChar: |Index of next character, start at 0, is set to -1 when buffer end reached|
 
 
 ---

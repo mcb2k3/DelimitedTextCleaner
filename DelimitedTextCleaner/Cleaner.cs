@@ -9,7 +9,7 @@
  * Based loosely on RFC 4180 (https://tools.ietf.org/html/rfc4180)
  * License: Released as free software under the MIT License (below)
  ******************************************************************************************
- Copyright 2017 Megan Brooks
+ Copyright 2017-2018 Megan Brooks DBA Sql2Go(SM)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -146,24 +146,25 @@ namespace Sql2Go.DelimitedTextCleaner
         /// <summary>
         /// Clean up multi-line delimited text
         /// </summary>
-        /// <param name="currentLine">Delimited text to clean</param>
-        /// <param name="currentChar">Index of next character, set to -1 when buffer end reached</param>
-        public bool CleanText(string currentLine, ref int currentChar)
+        /// <param name="allLines">Multiline delimited text to clean</param>
+        /// <param name="currentChar">Index of next character, start at 0, 
+        /// is set to -1 when buffer end reached</param>
+        public bool CleanText(string allLines, ref int currentChar)
         {
             charIndex = currentChar - 1;                    //Current index in line
             parserState = ParserState.AtDelimiter;          //Current parser state
             fieldList = new List<FieldInfo>();   //List of clean field values
-            fieldChars = new StringBuilder(currentLine.Length); //Field being cleaned
+            fieldChars = new StringBuilder(allLines.Length); //Field being cleaned
             quotesInARow = 0;                               //Multiple quote counter
             thisFieldInfo = null;                           //No fields yet
             damagedQuoteFound = false;                      //No damage, yet
             anyDamagedQuoteFound = false;
 
-            while (++charIndex < currentLine.Length)        //Next character
+            while (++charIndex < allLines.Length)        //Next character
             {
                 if (parserState == ParserState.AtEOL)       //Finish up if EOL
                 {
-                    var newChar = currentLine[charIndex];   //Current character
+                    var newChar = allLines[charIndex];   //Current character
 
                     if (thisChar == CR && newChar == LF)
                         charIndex++;                        //Flush past LF
@@ -171,7 +172,7 @@ namespace Sql2Go.DelimitedTextCleaner
                     break;                                  //Drop out to EOL processing
                 }
 
-                thisChar = currentLine[charIndex];          //Current character
+                thisChar = allLines[charIndex];          //Current character
 
                 if (thisChar < ' ' && !validCtl.Contains(thisChar))
                     continue;                               //Flush weird chars
@@ -341,7 +342,7 @@ namespace Sql2Go.DelimitedTextCleaner
 
             fields = null;                                  //Clear field values cache
 
-            if (charIndex < currentLine.Length)             //Buffer is not exhausted
+            if (charIndex < allLines.Length)             //Buffer is not exhausted
                 currentChar = charIndex;                    //Return resume point
             else
                 currentChar = -1;                           //Buffer is exhausted
